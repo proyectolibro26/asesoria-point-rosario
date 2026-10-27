@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asesoría Point Rosario</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: scroll story de secciones a pantalla completa; un posnet 3D fijo vuela al hueco libre de cada sección. Un solo look (amarillo de marca), sin modo oscuro. */
+:root{
+  --yellow:#FFE600; --yellow-2:#FFF07A; --yellow-3:#FFF9CC;
+  --ink:#0E1A2B; --ink-2:#3B4658; --ink-3:#6B7385;
+  --paper:#FFFDF3; --blue:#1450F5; --ok:#15A05A; --line:rgba(14,26,43,.14);
+  --f-display:"Poppins",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gx:max(16px,env(safe-area-inset-left,0px),3.2vw);
+  --gxr:max(16px,env(safe-area-inset-right,0px),3.2vw);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-display);color:var(--ink);background:var(--paper);overflow-x:hidden;-webkit-font-smoothing:antialiased;font-size:16px}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+h1,h2,h3{text-wrap:balance}
+
+/* NAV */
+.nav{position:fixed;z-index:30;top:0;left:0;right:0;display:flex;align-items:center;gap:20px;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-left:var(--gx);padding-right:var(--gxr);pointer-events:none;transition:color .5s ease}
+.nav>*{pointer-events:auto}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em;margin-right:clamp(10px,3vw,48px)}
+.logo svg{width:34px;height:34px;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.logo:hover svg{transform:rotate(-12deg)}
+.logo span small{display:block;font-weight:500;font-size:11.5px;opacity:.7;letter-spacing:.02em}
+.nav__links{display:flex;gap:clamp(18px,3vw,42px);font-size:15px}
+.nav__links a{position:relative}
+.nav__links a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+.nav__links a:hover::after{transform:scaleX(1)}
+.nav__cta{margin-left:auto;font-weight:600;font-size:15px;background:var(--ink);color:var(--yellow);padding:11px 18px;border-radius:999px;transition:transform .3s ease}
+.nav__cta:hover{transform:translateY(-2px)}
+.nav__cta .short,.pos-space{display:none}
+body.on-dark .nav{color:#fff}
+body.on-dark .nav__cta{background:var(--yellow);color:var(--ink)}
+
+.badge{position:fixed;z-index:30;right:var(--gxr);bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:8px;
+  font-family:var(--f-mono);font-size:12px;background:var(--paper);color:var(--ink);padding:8px 12px;border-radius:999px;border:1px solid var(--line);transition:opacity .4s}
+.badge i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(21,160,90,.18)}
+body.at-form .badge{opacity:0;pointer-events:none}
+
+#pos{position:fixed;inset:0;z-index:20;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+#pos.ready{opacity:1}
+
+/* SECCIONES */
+.sec{position:relative;min-height:100vh;overflow:hidden}
+.inner{padding-left:var(--gx);padding-right:var(--gxr)}
+.big{font-weight:800;line-height:.8;letter-spacing:-.06em;font-size:clamp(110px,17vw,280px);color:var(--yellow-3);position:absolute;pointer-events:none;user-select:none;will-change:transform;z-index:0}
+.eyebrow{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:22px;height:2px;background:currentColor}
+.title{font-weight:700;font-size:clamp(30px,3.6vw,56px);line-height:1.08;letter-spacing:-.025em;margin-top:16px}
+.copy{margin-top:20px;font-size:clamp(15px,1.15vw,17px);line-height:1.6;color:var(--ink-2);max-width:470px}
+.ticks{list-style:none;margin-top:26px;display:grid;gap:12px;max-width:470px}
+.ticks li{display:flex;gap:12px;align-items:flex-start;font-weight:500;font-size:15.5px;line-height:1.4}
+.ticks li svg{flex:none;width:22px;height:22px;margin-top:-1px}
+
+.reveal{transition:opacity .9s ease,transform 1s cubic-bezier(.2,.8,.15,1)}
+.js .reveal{opacity:0;transform:translateY(34px)}
+.js .in .reveal{opacity:1;transform:none}
+.in .reveal.d1{transition-delay:.1s}.in .reveal.d2{transition-delay:.2s}.in .reveal.d3{transition-delay:.3s}
+
+/* HERO */
+.hero{background:radial-gradient(60vw 55vh at 50% 66%,rgba(255,230,0,.38) 0%,rgba(255,230,0,0) 70%),var(--paper);z-index:3;display:grid}
+.hero h1{position:relative;z-index:2;text-align:center;font-weight:800;font-size:clamp(42px,6.4vw,112px);line-height:1.02;letter-spacing:-.04em;padding-top:15vh;will-change:transform}
+.hero h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
+.hero h1 .l span{display:inline-block;animation:rise 1.1s cubic-bezier(.2,.8,.15,1) both}
+.hero h1 .l:nth-child(2) span{animation-delay:.12s}
+.hero h1 em{font-style:normal;background:var(--yellow);color:var(--ink);padding:0 .14em;border-radius:.12em}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+.hero__side{position:absolute;right:max(var(--gxr),6vw);top:60vh;width:min(290px,80vw);z-index:2;animation:fade 1s .5s ease both}
+.hero__side p{font-size:clamp(15px,1.3vw,18.5px);line-height:1.4;color:var(--ink-2)}
+.hero__facts{position:absolute;left:max(var(--gx),6vw);top:62vh;z-index:2;display:grid;gap:18px;animation:fade 1s .7s ease both}
+.fact b{display:block;font-weight:800;font-size:clamp(34px,3.6vw,54px);letter-spacing:-.04em;line-height:1}
+.fact span{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.join{display:inline-flex;align-items:center;gap:14px;margin-top:28px;font-weight:600;font-size:clamp(15px,1.3vw,18px)}
+.join i{width:26px;height:34px;border:1.8px solid currentColor;border-radius:10px;display:grid;place-items:center;transition:transform .35s ease}
+.join i svg{width:9px;height:9px}
+.join:hover i{transform:translateX(4px)}
+.rings{position:absolute;left:50%;top:64%;width:min(120vh,120vw);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none}
+.rings span{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(14,26,43,.08)}
+.rings span:nth-child(2){inset:14%}.rings span:nth-child(3){inset:28%}
+
+/* BLOQUES DE CONTENIDO */
+.split{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding-block:120px 90px;position:relative;z-index:1}
+.split .text{min-width:0}
+.right .text{grid-column:2}
+.left .text{grid-column:1}
+.s1{background:linear-gradient(180deg,var(--paper) 0%,var(--yellow-3) 100%);z-index:2}
+.s1 .big{left:4vw;bottom:6vh;color:#FFF3A0}
+.s2{background:var(--ink);color:#fff;z-index:3}
+.s2::before{content:"";position:absolute;inset:0;background:radial-gradient(60vw 70vh at 80% 70%,rgba(255,230,0,.16),rgba(255,230,0,0) 70%)}
+.s2 .big{right:3vw;top:8vh;color:rgba(255,230,0,.12)}
+.s2 .copy{color:rgba(240,243,250,.78)}
+.s2 .eyebrow{color:var(--yellow)}
+.s3{background:var(--paper);z-index:1}
+.s3 .big{left:3vw;top:10vh;color:var(--yellow-3)}
+.note{margin-top:26px;display:inline-flex;gap:10px;align-items:center;font-family:var(--f-mono);font-size:12.5px;background:var(--paper);border:1px dashed var(--ink-3);padding:10px 14px;border-radius:10px;color:var(--ink-2)}
+
+/* CÓMO + ZONA */
+.como{background:var(--yellow-3);z-index:1}
+.como .split{align-items:start;padding-block:130px 100px}
+.steps{list-style:none;margin-top:34px;display:grid;gap:0;max-width:540px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:56px 1fr;gap:18px;padding:20px 0;border-top:1px solid var(--line)}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps li::before{counter-increment:s;content:counter(s);width:44px;height:44px;border-radius:50%;background:var(--yellow);display:grid;place-items:center;font-weight:700;font-size:18px}
+.steps h3{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.steps p{font-size:15px;line-height:1.55;color:var(--ink-2);margin-top:4px}
+.zona{margin-top:46px;max-width:560px}
+.zona h3{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.zona p{font-size:14.5px;color:var(--ink-2);margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips span{font-size:13px;font-weight:500;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line)}
+.chips span.home{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
+
+/* AGENDA */
+.agenda{background:var(--yellow);z-index:2}
+.agenda .split{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:clamp(24px,4vw,64px);padding-block:130px 110px}
+.agenda .lead{position:sticky;top:120px}
+.agenda .lead .copy{max-width:400px}
+.form{background:var(--paper);border-radius:22px;padding:clamp(20px,3vw,36px);box-shadow:0 30px 60px -30px rgba(14,26,43,.35);display:grid;gap:22px;min-width:0}
+.form fieldset{border:0;display:grid;gap:14px;min-width:0}
+.form legend{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-size:13.5px;font-weight:500}
+.field input,.field select,.field textarea{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;min-width:0;transition:border-color .2s}
+.field textarea{min-height:84px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field.err input,.field.err select{border-color:#D33A2C}
+.field .msg{font-size:12.5px;color:#C0321F;min-height:0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.opt span{display:flex;flex-direction:column;gap:3px;height:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:14.5px;font-weight:600;transition:all .2s;cursor:pointer}
+.opt span small{font-weight:400;font-size:12.5px;color:var(--ink-3)}
+.opt input:checked+span{border-color:var(--ink);background:var(--yellow-3);box-shadow:inset 0 0 0 1px var(--ink)}
+.opt input:focus-visible+span{outline:3px solid var(--blue);outline-offset:2px}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.day{flex:none;width:64px;padding:10px 0;border-radius:12px;border:1.5px solid var(--line);background:#fff;font:inherit;text-align:center;cursor:pointer;color:var(--ink)}
+.day small{display:block;font-family:var(--f-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+.day b{display:block;font-size:20px;font-weight:700}
+.day[aria-pressed="true"]{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
+.day[aria-pressed="true"] small{color:var(--yellow-2)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.slot{font:inherit;font-family:var(--f-mono);font-size:13.5px;padding:10px 0;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.slot[aria-pressed="true"]{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
+.slots-empty{font-size:14px;color:var(--ink-3)}
+.submit{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.submit p{font-size:12.5px;color:var(--ink-3);max-width:300px;line-height:1.45}
+.btn{font:inherit;font-weight:600;font-size:16px;background:var(--ink);color:var(--yellow);border:0;border-radius:999px;padding:15px 26px;cursor:pointer;display:inline-flex;gap:12px;align-items:center;transition:transform .25s}
+.btn:hover{transform:translateY(-2px)}
+.btn svg{width:10px;height:10px}
+
+/* TICKET de confirmación */
+.ticket{background:#fff;font-family:var(--f-mono);font-size:13.5px;color:var(--ink);padding:28px 26px 34px;border-radius:6px 6px 0 0;max-width:420px;margin-inline:auto;width:100%;position:relative;box-shadow:0 30px 60px -30px rgba(14,26,43,.4);animation:print 1.1s cubic-bezier(.2,.8,.15,1) both}
+.ticket::after{content:"";position:absolute;left:0;right:0;bottom:-12px;height:12px;background:linear-gradient(-45deg,transparent 8px,#fff 0) 0 0/16px 12px,linear-gradient(45deg,transparent 8px,#fff 0) 0 0/16px 12px}
+@keyframes print{from{clip-path:inset(0 0 100% 0);transform:translateY(-30px)}to{clip-path:inset(0 0 -20px 0);transform:none}}
+.ticket h3{font-family:var(--f-display);font-size:22px;text-align:center;letter-spacing:-.01em}
+.ticket .ok{display:grid;place-items:center;margin:0 auto 12px;width:52px;height:52px;border-radius:50%;background:var(--ok);color:#fff}
+.ticket .ok svg{width:24px;height:24px}
+.ticket dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:18px;padding-top:16px;border-top:1.5px dashed var(--ink-3)}
+.ticket dt{color:var(--ink-3)}
+.ticket dd{text-align:right;font-weight:600;overflow-wrap:anywhere}
+.ticket .code{text-align:center;margin-top:18px;padding-top:16px;border-top:1.5px dashed var(--ink-3);letter-spacing:.2em;font-weight:600}
+.ticket .demo{margin-top:14px;font-size:11.5px;color:var(--ink-3);text-align:center;line-height:1.5}
+.ticket .acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.ticket .acts a,.ticket .acts button{font:inherit;font-family:var(--f-display);font-size:14px;font-weight:600;padding:10px 16px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;color:var(--ink)}
+.ticket .acts a{background:var(--ink);color:var(--yellow)}
+
+/* FOOTER */
+.foot{background:var(--ink);color:#fff;z-index:1;display:flex;flex-direction:column;justify-content:space-between;padding-block:22vh calc(80px + env(safe-area-inset-bottom,0px))}
+.foot .cta{text-align:center}
+.foot .cta .title{font-size:clamp(34px,4.4vw,72px)}
+.foot .cta .join{color:var(--yellow)}
+.foot .bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-top:40vh}
+.foot .brand strong{display:block;font-size:clamp(28px,2.8vw,42px);font-weight:700;letter-spacing:-.02em}
+.foot .brand span{font-size:14px;color:rgba(255,255,255,.7)}
+.foot .cols{display:flex;gap:56px;font-size:14.5px;font-weight:500}
+.foot .cols a{display:block;line-height:2}
+.foot .cols a:hover{color:var(--yellow)}
+.legal{margin-top:34px;font-size:12px;color:rgba(255,255,255,.5);max-width:720px;line-height:1.5}
+
+@media (max-width:760px){
+  .nav__links{display:none}
+  .logo span{white-space:nowrap}
+  .logo span small{display:none}
+  .nav__cta{padding:10px 16px;font-size:14px}
+  .nav__cta .long{display:none}.nav__cta .short{display:inline}
+  .badge{display:none}
+  .hero{display:flex;flex-direction:column;padding-bottom:8vh}
+  .hero h1{padding-top:13vh}
+  .pos-space{display:block;height:36vh;flex:none}
+  .hero__facts{position:static;grid-auto-flow:column;justify-content:start;gap:32px;padding-left:var(--gx);padding-right:var(--gxr)}
+  .hero__side{position:static;width:auto;margin-top:24px;padding-left:var(--gx);padding-right:var(--gxr)}
+  .rings{top:50%}
+  .split,.agenda .split{grid-template-columns:1fr}
+  .right .text,.left .text{grid-column:1}
+  .split{padding-block:110px 80px}
+  .s1 .big{bottom:auto;top:10vh}
+  .s2 .big{top:auto;bottom:6vh;left:3vw;right:auto}
+  .row,.opts{grid-template-columns:1fr}
+  .agenda .lead{position:static}
+  .foot{padding-block:14vh calc(70px + env(safe-area-inset-bottom,0px))}
+  .foot .bottom{margin-top:36vh}
+  .foot .cols{gap:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="#top" aria-label="Asesoría Point Rosario, inicio">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="2" width="26" height="36" rx="7" fill="currentColor"/><rect x="11" y="7" width="18" height="12" rx="2.5" fill="#FFE600"/><g fill="#FFE600"><circle cx="14" cy="25" r="1.8"/><circle cx="20" cy="25" r="1.8"/><circle cx="26" cy="25" r="1.8"/><circle cx="14" cy="31" r="1.8"/><circle cx="20" cy="31" r="1.8"/><circle cx="26" cy="31" r="1.8"/></g></svg>
+    <span>Asesoría Point<small>Rosario y alrededores</small></span>
+  </a>
+  <div class="nav__links">
+    <a href="#nuevo">Point nuevo</a>
+    <a href="#ya-tengo">Ya tengo Point</a>
+    <a href="#banco">Posnet del banco</a>
+    <a href="#como">Zona</a>
+  </div>
+  <a class="nav__cta" href="#agenda"><span class="long">Agendá tu entrevista</span><span class="short">Agendar</span></a>
+</nav>
+
+<canvas id="pos" aria-hidden="true"></canvas>
+
+<main>
+  <section class="sec hero" id="top" data-theme="light" data-k="0">
+    <div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1 class="inner" data-speed="0.5"><span class="l"><span>Cobrá con Point.</span></span><span class="l"><span>Pagá <em>menos</em> comisión.</span></span></h1>
+    <div class="pos-space" aria-hidden="true"></div>
+    <div class="hero__facts" aria-label="Beneficios">
+      <div class="fact"><b>3 meses</b><span>de atención personalizada</span></div>
+      <div class="fact"><b>60 km</b><span>alrededor de Rosario</span></div>
+    </div>
+    <div class="hero__side">
+      <p>Asesoramos a comercios, locales y pymes para que cobren con Mercado Pago Point con mejores tasas y un asesor que los atiende en persona.</p>
+      <a class="join" href="#agenda"><i><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 1l4 4-4 4"/></svg></i>Agendá tu entrevista</a>
+    </div>
+  </section>
+
+  <section class="sec s1 right" id="nuevo" data-theme="light" data-k="1">
+    <div class="big" data-speed="0.3" aria-hidden="true">90d</div>
+    <div class="split inner">
+      <div class="text">
+        <div class="eyebrow reveal">Querés tu primer Point</div>
+        <h2 class="title reveal d1">Te vendemos el Point y lo dejamos funcionando</h2>
+        <p class="copy reveal d2">Elegimos con vos el modelo que le sirve a tu negocio, lo configuramos en tu local y te acompañamos durante 3 meses con las dudas de cobros, liquidaciones y reclamos. Además, tus cobros quedan con una comisión reducida.</p>
+        <ul class="ticks reveal d3">
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#0E1A2B"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#FFE600" stroke-width="2"/></svg>Asesor asignado durante 3 meses</li>
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#0E1A2B"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#FFE600" stroke-width="2"/></svg>Comisión reducida en cada cobro</li>
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#0E1A2B"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#FFE600" stroke-width="2"/></svg>Instalación y capacitación en tu local</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s2 left" id="ya-tengo" data-theme="dark" data-k="2">
+    <div class="big" data-speed="-0.25" aria-hidden="true">Alta</div>
+    <div class="split inner">
+      <div class="text">
+        <div class="eyebrow reveal">Ya compraste tu Point</div>
+        <h2 class="title reveal d1">Lo damos de alta con nosotros y empezás a ahorrar</h2>
+        <p class="copy reveal d2">No hace falta comprar nada nuevo. Vinculamos tu Point a nuestra asesoría, accedés a la comisión reducida y tenés un asesor que te atiende en persona. Seguís cobrando con el mismo equipo de siempre.</p>
+        <ul class="ticks reveal d3">
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#FFE600"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#0E1A2B" stroke-width="2"/></svg>Mismo equipo, mejor comisión</li>
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#FFE600"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#0E1A2B" stroke-width="2"/></svg>Hacemos el trámite de alta por vos</li>
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#FFE600"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#0E1A2B" stroke-width="2"/></svg>3 meses de atención personalizada</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s3 right" id="banco" data-theme="light" data-k="3">
+    <div class="big" data-speed="0.25" aria-hidden="true">−%</div>
+    <div class="split inner">
+      <div class="text">
+        <div class="eyebrow reveal">Cobrás con el posnet de tu banco</div>
+        <h2 class="title reveal d1">Revisamos tus tasas de QR, débito y crédito</h2>
+        <p class="copy reveal d2">Miramos tus últimas liquidaciones y te mostramos cuánto pagás hoy por cada medio de cobro. Con eso armamos una propuesta para bajar lo que te cobran en QR, tarjeta de débito y tarjeta de crédito.</p>
+        <ul class="ticks reveal d3">
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#0E1A2B"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#FFE600" stroke-width="2"/></svg>Comparativa con tus números reales</li>
+          <li><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#0E1A2B"/><path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="#FFE600" stroke-width="2"/></svg>Propuesta de tasas más bajas</li>
+        </ul>
+        <div class="note reveal d3">Tené a mano una liquidación reciente para la entrevista.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec como left" id="como" data-theme="light" data-k="4">
+    <div class="split inner">
+      <div class="text">
+        <div class="eyebrow reveal">Cómo trabajamos</div>
+        <h2 class="title reveal d1">De la entrevista al primer cobro</h2>
+        <ol class="steps reveal d2">
+          <li><div><h3>Pedís tu entrevista</h3><p>Completás el formulario en dos minutos y elegís si preferís visita en tu local o una llamada.</p></div></li>
+          <li><div><h3>Te visitamos o te llamamos</h3><p>Vemos cómo cobrás hoy, qué volumen manejás y qué te conviene: Point nuevo, alta de tu Point o mejora de tasas.</p></div></li>
+          <li><div><h3>Alta y 3 meses de seguimiento</h3><p>Dejamos todo configurado y quedás con un asesor asignado para lo que necesites.</p></div></li>
+        </ol>
+        <div class="zona reveal d3">
+          <h3>Atendemos en Rosario y hasta 60 km</h3>
+          <p>Si tu localidad no figura, pedí la entrevista igual y te confirmamos.</p>
+          <div class="chips">
+            <span class="home">Rosario</span><span>Funes</span><span>Roldán</span><span>Granadero Baigorria</span><span>Capitán Bermúdez</span><span>Fray Luis Beltrán</span><span>San Lorenzo</span><span>Puerto Gral. San Martín</span><span>Timbúes</span><span>Villa Gdor. Gálvez</span><span>Pérez</span><span>Soldini</span><span>Zavalla</span><span>Ibarlucea</span><span>Alvear</span><span>Pueblo Esther</span><span>Arroyo Seco</span><span>Fighiera</span><span>Gral. Lagos</span><span>Carcarañá</span><span>Oliveros</span><span>Villa Constitución</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec agenda" id="agenda" data-theme="light" data-k="5">
+    <div class="split inner">
+      <div class="lead">
+        <div class="eyebrow reveal">Entrevista sin cargo</div>
+        <h2 class="title reveal d1">Agendá tu entrevista</h2>
+        <p class="copy reveal d2">Elegí día y horario. Un asesor te confirma por WhatsApp y llega a tu local, o te llama a la hora que marcaste.</p>
+      </div>
+      <div id="formWrap">
+        <form class="form" id="form" novalidate>
+          <fieldset>
+            <legend>Tu negocio</legend>
+            <div class="row">
+              <div class="field"><label for="f-negocio">Nombre del comercio</label><input id="f-negocio" name="negocio" autocomplete="organization" placeholder="Ej.: Panadería Don Luis"><div class="msg"></div></div>
+              <div class="field"><label for="f-rubro">Rubro</label>
+                <select id="f-rubro" name="rubro"><option value="">Elegí un rubro</option><option>Gastronomía</option><option>Almacén / autoservicio</option><option>Indumentaria</option><option>Salud y estética</option><option>Servicios profesionales</option><option>Ferretería / corralón</option><option>Kiosco</option><option>Otro</option></select><div class="msg"></div></div>
+            </div>
+            <div class="field"><label for="f-localidad">Localidad</label>
+              <select id="f-localidad" name="localidad"><option value="">Elegí tu localidad</option></select><div class="msg"></div></div>
+            <div class="field"><label>Hoy cobrás con</label>
+              <div class="opts" role="radiogroup" aria-label="Situación actual">
+                <label class="opt"><input type="radio" name="situacion" value="Quiero un Point nuevo" checked><span>Todavía no tengo posnet<small>Quiero comprar un Point</small></span></label>
+                <label class="opt"><input type="radio" name="situacion" value="Ya tengo Point (alta)"><span>Ya tengo un Point<small>Quiero darlo de alta con ustedes</small></span></label>
+                <label class="opt"><input type="radio" name="situacion" value="Posnet del banco"><span>Posnet de mi banco<small>Quiero bajar mis tasas</small></span></label>
+                <label class="opt"><input type="radio" name="situacion" value="Otro / no sé"><span>Otro / no sé<small>Quiero que me asesoren</small></span></label>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Tus datos</legend>
+            <div class="row">
+              <div class="field"><label for="f-nombre">Nombre y apellido</label><input id="f-nombre" name="nombre" autocomplete="name"><div class="msg"></div></div>
+              <div class="field"><label for="f-tel">WhatsApp</label><input id="f-tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="341 555-1234"><div class="msg"></div></div>
+            </div>
+            <div class="field"><label for="f-email">Email (opcional)</label><input id="f-email" name="email" type="email" autocomplete="email"><div class="msg"></div></div>
+          </fieldset>
+          <fieldset>
+            <legend>Modalidad y horario</legend>
+            <div class="opts" role="radiogroup" aria-label="Modalidad">
+              <label class="opt"><input type="radio" name="modo" value="visita" checked><span>Visita en mi local<small>45 min · lunes a viernes</small></span></label>
+              <label class="opt"><input type="radio" name="modo" value="llamada"><span>Llamada<small>20 min · lunes a sábado</small></span></label>
+            </div>
+            <div class="field" id="f-dir-wrap"><label for="f-dir">Dirección del local</label><input id="f-dir" name="direccion" autocomplete="street-address" placeholder="Calle y número"><div class="msg"></div></div>
+            <div class="field"><label>Día</label><div class="days" id="days"></div></div>
+            <div class="field" id="slot-field"><label>Horario</label><div class="slots" id="slots"></div><div class="msg"></div></div>
+            <div class="field"><label for="f-nota">¿Algo que debamos saber? (opcional)</label><textarea id="f-nota" name="nota" placeholder="Ej.: facturamos unos $8 millones por mes, la mitad con QR"></textarea></div>
+          </fieldset>
+          <div class="submit">
+            <p>Usamos tus datos solo para coordinar la entrevista.</p>
+            <button class="btn" type="submit">Reservar entrevista <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 1l4 4-4 4"/></svg></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec foot" id="contacto" data-theme="dark" data-k="6">
+    <div class="inner cta">
+      <h2 class="title reveal">¿Listo para cobrar mejor?</h2>
+      <a class="join reveal d1" href="#agenda"><i><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 1l4 4-4 4"/></svg></i>Agendá tu entrevista</a>
+    </div>
+    <div class="inner">
+      <div class="bottom">
+        <div class="brand"><strong>Asesoría Point Rosario</strong><span>Rosario, Santa Fe · Comercios y pymes</span></div>
+        <div class="cols">
+          <div><a href="#nuevo">Point nuevo</a><a href="#ya-tengo">Ya tengo Point</a><a href="#banco">Posnet del banco</a></div>
+          <div><a href="#como">Zona de cobertura</a><a href="#agenda">Agendar</a></div>
+        </div>
+      </div>
+      <p class="legal">Mercado Pago y Point son marcas registradas de sus respectivos titulares. Las comisiones y tasas finales dependen de la evaluación de cada comercio.</p>
+    </div>
+  </section>
+</main>
+
+<div class="badge" aria-hidden="true"><i></i>Rosario + 60 km</div>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  const loc=["Rosario","Alvear","Arroyo Seco","Capitán Bermúdez","Carcarañá","Fighiera","Fray Luis Beltrán","Funes","General Lagos","Granadero Baigorria","Ibarlucea","Oliveros","Pérez","Pueblo Esther","Puerto General San Martín","Roldán","San Lorenzo","Soldini","Timbúes","Villa Constitución","Villa Gobernador Gálvez","Zavalla","Otra localidad (hasta 60 km)"];
+  const sel=document.getElementById('f-localidad');
+  loc.forEach(l=>{const o=document.createElement('option');o.textContent=l;sel.appendChild(o)});
+
+  /* Reveals */
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.2});
+  document.querySelectorAll('main > section').forEach(s=>io.observe(s));
+
+  /* Parallax + tema nav */
+  const par=[...document.querySelectorAll('[data-speed]')];
+  const secs=[...document.querySelectorAll('main > section')];
+  function onScroll(){
+    const H=innerHeight;
+    par.forEach(el=>{const sec=el.closest('section');const p=-sec.getBoundingClientRect().top/H;el.style.transform=`translate3d(0,${p*parseFloat(el.dataset.speed)*H}px,0)`});
+    const y=H*.06;let dark=false,form=false;
+    secs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<=y&&r.bottom>y){dark=s.dataset.theme==='dark'}if(s.id==='agenda'&&r.top<H*.6&&r.bottom>H*.4)form=true});
+    document.body.classList.toggle('on-dark',dark);
+    document.body.classList.toggle('at-form',form);
+  }
+  addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+
+  /* Agenda */
+  const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MN=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const daysEl=document.getElementById('days'),slotsEl=document.getElementById('slots');
+  let selDay=null,selSlot=null;
+  const modo=()=>document.querySelector('input[name=modo]:checked').value;
+  function slotsFor(d){
+    const dow=d.getDay(),m=modo(),out=[];
+    if(m==='visita'){if(dow===0||dow===6)return out;for(let h=9;h<=17;h++)if(h!==13)out.push([h,0])}
+    else{if(dow===0)return out;const end=dow===6?12:18;for(let h=9;h<end;h++){out.push([h,0]);out.push([h,30])}}
+    return out;
+  }
+  function renderDays(){
+    daysEl.innerHTML='';const now=new Date();let added=0;
+    for(let i=1;added<12&&i<30;i++){
+      const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);
+      if(!slotsFor(d).length)continue;added++;
+      const b=document.createElement('button');b.type='button';b.className='day';
+      b.innerHTML=`<small>${DN[d.getDay()]}</small><b>${d.getDate()}</b><small>${MN[d.getMonth()]}</small>`;
+      b.setAttribute('aria-pressed',selDay&&+selDay===+d?'true':'false');
+      b.onclick=()=>{selDay=d;selSlot=null;renderDays();renderSlots()};
+      daysEl.appendChild(b);
+    }
+    if(selDay&&!slotsFor(selDay).length){selDay=null}
+  }
+  function renderSlots(){
+    slotsEl.innerHTML='';
+    if(!selDay){slotsEl.innerHTML='<div class="slots-empty">Elegí un día para ver los horarios.</div>';return}
+    slotsFor(selDay).forEach(([h,m])=>{
+      const b=document.createElement('button');b.type='button';b.className='slot';
+      const t=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;b.textContent=t;
+      b.setAttribute('aria-pressed',selSlot===t?'true':'false');
+      b.onclick=()=>{selSlot=t;renderSlots();document.getElementById('slot-field').classList.remove('err');document.querySelector('#slot-field .msg').textContent=''};
+      slotsEl.appendChild(b);
+    });
+  }
+  document.querySelectorAll('input[name=modo]').forEach(r=>r.addEventListener('change',()=>{
+    document.getElementById('f-dir-wrap').hidden=modo()!=='visita';
+    if(selDay&&!slotsFor(selDay).length)selDay=null;selSlot=null;renderDays();renderSlots();
+  }));
+  renderDays();renderSlots();
+
+  const form=document.getElementById('form');
+  function setErr(id,msg){const f=document.getElementById(id).closest('.field');f.classList.toggle('err',!!msg);f.querySelector('.msg').textContent=msg||''}
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  form.addEventListener('submit',e=>{
+    e.preventDefault();const fd=new FormData(form);let bad=null;
+    const need=[['f-negocio','Escribí el nombre del comercio.'],['f-rubro','Elegí un rubro.'],['f-localidad','Elegí tu localidad.'],['f-nombre','Escribí tu nombre.']];
+    need.forEach(([id,m])=>{const v=document.getElementById(id).value.trim();setErr(id,v?'':m);if(!v&&!bad)bad=id});
+    const tel=fd.get('tel').replace(/\D/g,'');setErr('f-tel',tel.length>=8?'':'Ingresá un WhatsApp con código de área.');if(tel.length<8&&!bad)bad='f-tel';
+    const em=fd.get('email').trim();const emOk=!em||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);setErr('f-email',emOk?'':'Revisá el email.');if(!emOk&&!bad)bad='f-email';
+    if(modo()==='visita'){const d=fd.get('direccion').trim();setErr('f-dir',d?'':'Indicá la dirección para la visita.');if(!d&&!bad)bad='f-dir'}else setErr('f-dir','');
+    const sf=document.getElementById('slot-field');const sOk=selDay&&selSlot;sf.classList.toggle('err',!sOk);sf.querySelector('.msg').textContent=sOk?'':'Elegí día y horario.';if(!sOk&&!bad)bad='days';
+    if(bad){document.getElementById(bad).scrollIntoView({behavior:'smooth',block:'center'});return}
+
+    const [h,m]=selSlot.split(':').map(Number);
+    const st=new Date(selDay.getFullYear(),selDay.getMonth(),selDay.getDate(),h,m);
+    const dur=modo()==='visita'?45:20;const en=new Date(st.getTime()+dur*60000);
+    const f=d=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}00`;
+    const what=modo()==='visita'?'Visita':'Llamada';
+    const gcal='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(`${what} Asesoría Point Rosario`)+`&dates=${f(st)}/${f(en)}&ctz=America/Argentina/Cordoba&details=`+encodeURIComponent(`Entrevista con Asesoría Point Rosario.\nComercio: ${fd.get('negocio')}\nTema: ${fd.get('situacion')}`)+(modo()==='visita'?'&location='+encodeURIComponent(fd.get('direccion')+', '+fd.get('localidad')):'');
+    const code='APR-'+Math.random().toString(36).slice(2,6).toUpperCase();
+    const fecha=`${DN[st.getDay()]} ${st.getDate()} ${MN[st.getMonth()]} · ${selSlot} h`;
+    document.getElementById('formWrap').innerHTML=`
+      <div class="ticket" role="status">
+        <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+        <h3>Solicitud registrada</h3>
+        <dl>
+          <dt>Comercio</dt><dd>${esc(fd.get('negocio'))}</dd>
+          <dt>Contacto</dt><dd>${esc(fd.get('nombre'))}</dd>
+          <dt>WhatsApp</dt><dd>${esc(fd.get('tel'))}</dd>
+          <dt>Tema</dt><dd>${esc(fd.get('situacion'))}</dd>
+          <dt>Modalidad</dt><dd>${what} · ${dur} min</dd>
+          <dt>Fecha</dt><dd>${fecha}</dd>
+          ${modo()==='visita'?`<dt>Dirección</dt><dd>${esc(fd.get('direccion'))}, ${esc(fd.get('localidad'))}</dd>`:`<dt>Localidad</dt><dd>${esc(fd.get('localidad'))}</dd>`}
+        </dl>
+        <div class="code">${code}</div>
+        <div class="acts"><a href="${gcal}" target="_blank" rel="noopener">Agregar a mi Google Calendar</a><button type="button" id="again">Nueva solicitud</button></div>
+        <p class="demo">Versión de prueba: en el sitio publicado esta solicitud se agenda automáticamente y el asesor recibe el aviso por WhatsApp.</p>
+      </div>`;
+    document.getElementById('again').onclick=()=>location.reload();
+    document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'center'});
+    window.dispatchEvent(new CustomEvent('pos-approve'));
+  });
+})();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const canvas=document.getElementById('pos');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+const scene=new THREE.Scene();
+scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(),.04).texture;
+const camera=new THREE.PerspectiveCamera(30,1,.1,100);camera.position.set(0,0,10);
+function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+scene.add(new THREE.HemisphereLight(0xfffbe6,0x8a7a20,1.1));
+const d1=new THREE.DirectionalLight(0xffffff,2.4);d1.position.set(3,5,6);scene.add(d1);
+const d2=new THREE.DirectionalLight(0xfff2a0,1.4);d2.position.set(-5,2,-4);scene.add(d2);
+
+const flight=new THREE.Group(),tilt=new THREE.Group(),device=new THREE.Group();
+scene.add(flight);flight.add(tilt);tilt.add(device);
+
+/* ---------- Posnet procedural (tipo Point Smart) ---------- */
+const yMat=new THREE.MeshPhysicalMaterial({color:0xffdd00,roughness:.38,clearcoat:.45,clearcoatRoughness:.35});
+const yMat2=new THREE.MeshPhysicalMaterial({color:0xf5cf00,roughness:.5,clearcoat:.2});
+const darkMat=new THREE.MeshStandardMaterial({color:0x17191d,roughness:.7});
+const add=(geo,mat,x,y,z,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);device.add(m);return m};
+// cuerpo con pantalla
+add(new RoundedBoxGeometry(1,1.92,.2,6,.08),yMat,0,-.1,0);
+// cabezal de impresora + rollo de papel atrás
+add(new RoundedBoxGeometry(1.02,.48,.52,6,.12),yMat,0,.95,-.15);
+add(new THREE.CylinderGeometry(.27,.27,1.0,48),yMat,0,.92,-.38,0,0,Math.PI/2);
+// lomo trasero que baja en forma de manija
+add(new RoundedBoxGeometry(.8,1.0,.3,6,.12),yMat2,0,.25,-.2,-.18,0,0);
+// ranura de papel y detalles del cabezal
+add(new RoundedBoxGeometry(.84,.018,.05,2,.008),darkMat,0,1.19,.02);
+add(new RoundedBoxGeometry(.9,.012,.012,2,.005),darkMat,0,.79,.101);
+// lector lateral de tarjetas (banda/chip)
+add(new RoundedBoxGeometry(.1,1.0,.2,4,.04),yMat,.535,-.2,-.01);
+add(new THREE.BoxGeometry(.012,.92,.16),darkMat,.487,-.2,-.01);
+// patas
+[-.36,.36].forEach(x=>add(new RoundedBoxGeometry(.18,.03,.12,2,.012),darkMat,x,-1.065,-.02));
+
+// pantalla táctil
+const scrC=document.createElement('canvas');scrC.width=512;scrC.height=964;const sx=scrC.getContext('2d');
+const scrTex=new THREE.CanvasTexture(scrC);scrTex.colorSpace=THREE.SRGBColorSpace;scrTex.anisotropy=8;
+add(new RoundedBoxGeometry(.9,1.68,.02,3,.04),new THREE.MeshPhysicalMaterial({color:0x08090b,roughness:.08,clearcoat:1}),0,-.13,.101);
+const screen=add(new THREE.PlaneGeometry(.84,1.58),new THREE.MeshBasicMaterial({map:scrTex,toneMapped:false}),0,-.13,.113);
+
+// ticket que sale por arriba
+const tkC=document.createElement('canvas');tkC.width=256;tkC.height=360;const tx=tkC.getContext('2d');
+tx.fillStyle='#fff';tx.fillRect(0,0,256,360);tx.fillStyle='#0E1A2B';tx.font='600 26px monospace';tx.textAlign='center';tx.fillText('APROBADO',128,60);
+tx.font='18px monospace';['--------------','TOTAL  $60.000','DÉBITO  ****21','--------------','GRACIAS'].forEach((l,i)=>tx.fillText(l,128,110+i*42));
+const tkTex=new THREE.CanvasTexture(tkC);tkTex.colorSpace=THREE.SRGBColorSpace;
+const tkGeo=new THREE.PlaneGeometry(.66,.92);tkGeo.translate(0,.46,0);
+const ticket=add(tkGeo,new THREE.MeshStandardMaterial({map:tkTex,roughness:.9,side:THREE.DoubleSide}),0,1.19,.02,-.22);
+ticket.scale.y=.02;
+
+// tarjeta
+const cdC=document.createElement('canvas');cdC.width=512;cdC.height=322;const cx=cdC.getContext('2d');
+const g=cx.createLinearGradient(0,0,512,322);g.addColorStop(0,'#1F2A44');g.addColorStop(1,'#0B1220');cx.fillStyle=g;cx.fillRect(0,0,512,322);
+cx.fillStyle='rgba(255,230,0,.12)';cx.beginPath();cx.arc(430,40,180,0,7);cx.fill();
+cx.fillStyle='#E8C66A';cx.fillRect(48,110,72,54);cx.strokeStyle='rgba(0,0,0,.25)';cx.lineWidth=2;cx.strokeRect(48,110,72,54);
+cx.strokeStyle='#fff';cx.lineWidth=5;for(let i=0;i<3;i++){cx.beginPath();cx.arc(150,137,14+i*12,-.7,.7);cx.stroke()}
+cx.fillStyle='#fff';cx.font='600 30px monospace';cx.fillText('•••• •••• •••• 4821',48,240);cx.font='18px monospace';cx.fillText('COMERCIO ROSARIO',48,282);
+const cdTex=new THREE.CanvasTexture(cdC);cdTex.colorSpace=THREE.SRGBColorSpace;
+const cardMats=[...Array(6)].map((_,i)=>i===4?new THREE.MeshPhysicalMaterial({map:cdTex,roughness:.25,clearcoat:1}):new THREE.MeshPhysicalMaterial({color:0x0B1220,roughness:.3}));
+const card=new THREE.Mesh(new THREE.BoxGeometry(.86,.54,.012),cardMats);device.add(card);
+const cardRest=new THREE.Vector3(1.1,-.35,.55),cardTap=new THREE.Vector3(0,.1,.3);
+
+// sombra suave
+const shC=document.createElement('canvas');shC.width=shC.height=128;const shx=shC.getContext('2d');
+const rg=shx.createRadialGradient(64,64,0,64,64,64);rg.addColorStop(0,'rgba(14,26,43,.35)');rg.addColorStop(1,'rgba(14,26,43,0)');shx.fillStyle=rg;shx.fillRect(0,0,128,128);
+const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(shC),transparent:true,depthWrite:false}));
+shadow.rotation.x=-Math.PI/2;shadow.position.y=-1.45;flight.add(shadow);
+
+const BLUE='#3483FA',INK='#1C1F26',GREY='#8A8F99';
+function rr(x,y,w,h,r){sx.beginPath();sx.roundRect(x,y,w,h,r)}
+function drawScreen(state,t){
+  sx.fillStyle='#F1F2F5';sx.fillRect(0,0,512,964);
+  // barra de estado
+  sx.fillStyle='#fff';sx.fillRect(0,0,512,40);sx.fillStyle=INK;sx.font='20px Poppins, sans-serif';sx.textAlign='right';sx.fillText('12:30',492,28);
+  sx.fillRect(400,14,6,16);sx.fillRect(410,10,6,20);sx.fillRect(420,12,10,18);
+  // pestañas
+  sx.fillStyle='#fff';sx.fillRect(0,40,512,330);sx.textAlign='center';
+  sx.fillStyle=BLUE;sx.font='500 22px Poppins, sans-serif';sx.fillText('Monto',128,84);
+  sx.fillStyle=INK;sx.font='600 22px Poppins, sans-serif';sx.fillText('Tus productos',384,84);
+  sx.fillStyle=BLUE;sx.fillRect(0,104,256,5);sx.fillStyle='#E3E5EA';sx.fillRect(256,106,256,2);
+  // monto
+  sx.fillStyle=INK;sx.font='400 92px Poppins, sans-serif';sx.fillText('60.000',280,262);
+  sx.font='400 52px Poppins, sans-serif';sx.fillText('$',112,246);
+  sx.fillStyle=BLUE;sx.font='500 21px Poppins, sans-serif';sx.fillText('Agregar descripción',256,330);
+  // teclado numérico
+  const kx=26,ky=392,kw=460,kh=420,cw=kw/3,ch=kh/4;
+  sx.fillStyle='#fff';rr(kx,ky,kw,kh,18);sx.fill();
+  sx.strokeStyle='#E6E8EC';sx.lineWidth=2;
+  for(let i=1;i<3;i++){sx.beginPath();sx.moveTo(kx+cw*i,ky);sx.lineTo(kx+cw*i,ky+kh);sx.stroke()}
+  for(let i=1;i<4;i++){sx.beginPath();sx.moveTo(kx,ky+ch*i);sx.lineTo(kx+kw,ky+ch*i);sx.stroke()}
+  const keys=['1','2','3','4','5','6','7','8','9','⌫','0','+'];
+  keys.forEach((k,i)=>{const c=i%3,r=Math.floor(i/3);sx.fillStyle=k==='+'?BLUE:INK;sx.font=k==='+'?'300 52px Poppins, sans-serif':'400 38px Poppins, sans-serif';sx.fillText(k,kx+cw*(c+.5),ky+ch*(r+.5)+(k==='+'?18:14))});
+  // botón cobrar
+  const pulse=state==='idle'?.5+.5*Math.sin(t*3):0;
+  sx.fillStyle=`rgba(52,131,250,${.18*pulse})`;rr(18,830,476,82,18);sx.fill();
+  sx.fillStyle=BLUE;rr(26,838,460,66,12);sx.fill();
+  sx.fillStyle='#fff';sx.font='500 25px Poppins, sans-serif';sx.fillText('Cobrar',256,880);
+  // navegación inferior
+  sx.fillStyle='#fff';sx.fillRect(0,922,512,42);sx.fillStyle=GREY;sx.font='15px Poppins, sans-serif';
+  ['Volver','Cobrar','Más'].forEach((l,i)=>sx.fillText(l,85+i*171,952));
+  // estados de cobro
+  if(state!=='idle'){
+    sx.fillStyle='rgba(20,22,28,.45)';sx.fillRect(0,0,512,964);
+    sx.fillStyle='#fff';rr(46,250,420,420,26);sx.fill();
+    if(state==='proc'){
+      sx.lineWidth=12;sx.strokeStyle='#E7E9EE';sx.beginPath();sx.arc(256,420,64,0,7);sx.stroke();
+      sx.strokeStyle=BLUE;sx.lineCap='round';sx.beginPath();sx.arc(256,420,64,t*6,t*6+1.8);sx.stroke();sx.lineCap='butt';
+      sx.fillStyle=INK;sx.font='600 30px Poppins, sans-serif';sx.fillText('Procesando…',256,580);
+    }else{
+      sx.fillStyle='#00A650';sx.beginPath();sx.arc(256,410,72,0,7);sx.fill();
+      sx.strokeStyle='#fff';sx.lineWidth=13;sx.lineCap='round';sx.lineJoin='round';sx.beginPath();sx.moveTo(220,412);sx.lineTo(246,438);sx.lineTo(294,384);sx.stroke();sx.lineCap='butt';
+      sx.fillStyle=INK;sx.font='700 38px Poppins, sans-serif';sx.fillText('¡Listo!',256,556);
+      sx.fillStyle=GREY;sx.font='22px Poppins, sans-serif';sx.fillText('Cobraste $ 60.000',256,600);
+    }
+  }
+  scrTex.needsUpdate=true;
+}
+
+/* ---------- Ruta de vuelo por sección ---------- */
+const KD=[
+  {x:.0, y:-.2,s:1.0,yaw:-16,pitch:8,roll:-5},
+  {x:-.46,y:-.02,s:1.05,yaw:24,pitch:6,roll:6},
+  {x:.46,y:-.04,s:1.05,yaw:-26,pitch:-4,roll:-7},
+  {x:-.46,y:.0,s:1.0,yaw:20,pitch:8,roll:4},
+  {x:.5,y:-.02,s:.95,yaw:-22,pitch:6,roll:-4},
+  {x:-.52,y:-.42,s:.62,yaw:28,pitch:10,roll:6},
+  {x:.0,y:.02,s:.75,yaw:-8,pitch:4,roll:0}];
+const KM=[
+  {x:0,y:-.06,s:.58,yaw:-16,pitch:8,roll:-5},
+  {x:.75,y:.95,s:.001,yaw:20,pitch:8,roll:6},
+  {x:.75,y:.95,s:.001,yaw:-22,pitch:-4,roll:-7},
+  {x:.75,y:.95,s:.001,yaw:18,pitch:8,roll:4},
+  {x:.75,y:.95,s:.001,yaw:-20,pitch:6,roll:-4},
+  {x:.75,y:.95,s:.001,yaw:20,pitch:6,roll:4},
+  {x:0,y:-.02,s:.42,yaw:-8,pitch:4,roll:0}];
+const secs=[...document.querySelectorAll('main > section[data-k]')];
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lerpA=(a,b,t)=>{const d=((b-a+540)%360)-180;return a+d*t};
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function targetAt(){
+  const K=innerWidth<760?KM:KD;const y=scrollY;
+  let i=0;for(let j=0;j<secs.length;j++)if(secs[j].offsetTop<=y+1)i=j;
+  i=Math.min(i,K.length-2);
+  const a=secs[i].offsetTop,b=secs[i+1].offsetTop;
+  const f=clamp((y-a)/Math.max(1,b-a),0,1.4);
+  const t=ease(clamp((f-.12)/.76,0,1));const bump=Math.sin(t*Math.PI);
+  const A=K[i],B=K[i+1];
+  return{x:lerp(A.x,B.x,t),y:lerp(A.y,B.y,t)-bump*.18,s:lerp(A.s,B.s,t)*(1+bump*.1),yaw:lerpA(A.yaw,B.yaw,t),pitch:lerp(A.pitch,B.pitch,t),roll:lerp(A.roll,B.roll,t)+bump*(B.x>A.x?-14:14),moving:bump};
+}
+const cur={...targetAt()};
+const mouse={x:0,y:0,sx:0,sy:0};
+addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight*2-1)},{passive:true});
+
+let tapStart=-10,approved=false;
+addEventListener('pos-approve',()=>{tapStart=clock.getElapsedTime()-2.0;approved=true});
+const clock=new THREE.Clock();const D=Math.PI/180;
+let lastState='',lx=cur.x,ly=cur.y;
+function frame(){
+  requestAnimationFrame(frame);
+  const dt=Math.min(clock.getDelta(),.05),t=clock.getElapsedTime();
+  const tg=targetAt(),k=1-Math.exp(-dt*3.2);
+  ['x','y','s','pitch','roll'].forEach(p=>cur[p]=lerp(cur[p],tg[p],k));
+  cur.yaw=lerpA(cur.yaw,tg.yaw,1-Math.exp(-dt*2.6));cur.moving=tg.moving;
+  const vx=(cur.x-lx)/dt,vy=(cur.y-ly)/dt;lx=cur.x;ly=cur.y;
+  const mk=1-Math.exp(-dt*2);mouse.sx=lerp(mouse.sx,mouse.x,mk);mouse.sy=lerp(mouse.sy,mouse.y,mk);
+  const halfH=Math.tan(15*D)*camera.position.z,halfW=halfH*camera.aspect;
+  const m=reduce?0:1;const hover=(Math.sin(t*1.6)*.05+Math.sin(t*2.9)*.015)*m;
+  flight.position.set(cur.x*halfW+Math.sin(t*1.1)*.04*m+mouse.sx*.12*m,cur.y*halfH+hover*halfH*.5+mouse.sy*.08*m,Math.sin(t*.8)*.12*m);
+  flight.scale.setScalar(halfH*2*.46*cur.s/2.4);
+  flight.rotation.set(0,(cur.yaw+mouse.sx*14*m)*D,0);
+  const pitch=cur.pitch-clamp(vy*20,-24,24)+Math.sin(t*1.4+1)*3*m-mouse.sy*8*m;
+  const roll=cur.roll+clamp(vx*16,-26,26)+Math.sin(t*1.2)*3*m;
+  tilt.rotation.set(-pitch*D,0,-roll*D*.6,'YXZ');
+
+  // ciclo de cobro: tarjeta se acerca, procesa, aprueba e imprime
+  if(!reduce&&!approved&&t-tapStart>9&&cur.moving<.05)tapStart=t;
+  const c=t-tapStart;let state='idle',cp=0;
+  if(c>=0&&c<1.1){cp=ease(c/1.1)}else if(c<2.0){cp=1;state='proc'}else if(c<3.0){cp=1-ease((c-2)/1);state='ok'}else if(c<6.5){state='ok'}
+  if(approved&&c>=2)state='ok';
+  card.position.lerpVectors(cardRest,cardTap,cp);
+  card.rotation.set(lerp(-.25,0,cp),lerp(-.55,0,cp),lerp(.35,.0,cp));
+  card.position.z+=Math.sin(t*1.7)*.02*m;
+  const tk=state==='ok'?clamp((c-2)/1.2,0,1):0;ticket.scale.y=lerp(ticket.scale.y,.02+tk*.98,1-Math.exp(-dt*6));
+  const key=state+(state==='idle'?Math.floor(t*10):state==='proc'?Math.floor(t*30):'');
+  if(key!==lastState){drawScreen(state,t);lastState=key}
+  renderer.render(scene,camera);
+}
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{drawScreen('idle',0);canvas.classList.add('ready');frame()});
+</script>
+
+</body>
+</html>
